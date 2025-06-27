@@ -146,6 +146,9 @@ my $outgroup1;
 my $outgroup2;
 my $ingroup;
 
+my $mk_tmp_dir;
+my $popgen_tmp_dir;
+
 my $help_flag = 0;
 
 
@@ -219,11 +222,14 @@ if ($mk_test_flag) {
     unless ($pol =~ /^(pol|unpol)$/) {
         die "\nError, do not recognize polarization option [$pol]\nShould be pol or unpol";
     }
-    system ("mkdir MK.tmp");    
+    $mk_tmp_dir = "$output_dir/MK.tmp";
+    mkdir($mk_tmp_dir) or die "Could not create directory $mk_tmp_dir: $!";
 }
 
+# if popgen flag is set, create PopGen.tmp directory
 if ($popgen_flag) {
-    system("mkdir PopGen.tmp");
+    $popgen_tmp_dir = "$output_dir/PopGen.tmp";
+    mkdir($popgen_tmp_dir) or die "Could not create directory $popgen_tmp_dir: $!";
 }
 
 
@@ -355,34 +361,36 @@ main: {
             if ($mk_test_flag) {
             
                 # Edit/move alignment file to MK tmp dir
-                system ("sed '/>/ s/_/; /g' $transcript.aln_dna.afa > MK.tmp/$transcript.fa ");
+                system ("sed '/>/ s/_/; /g' $transcript.aln_dna.afa > $mk_tmp_dir/$transcript.fa ");
                 # system ("sed -i.bak '/>/ s/\$/;/g' MK.tmp/$transcript.fa ");
                 
                 # run MK.pl with "pol" option
                 if ($pol eq "pol") {
-                    system ("MK.pl -outfile MK.tmp/$transcript.MKout.tmp1.txt -pol pol -outgroup $outgroup1 -outgroup $outgroup2 -ingroup $ingroup -dir ./MK.tmp/");
-                    system ("MK_trim.pl MK.tmp/$transcript.MKout.tmp1.txt > MK.tmp/$transcript.MKout.tmp2.txt");    
+                    system ("MK.pl -outfile $mk_tmp_dir/$transcript.MKout.tmp1.txt -pol pol -outgroup $outgroup1 -outgroup $outgroup2 -ingroup $ingroup -dir ./$mk_tmp_dir/");
+                    system ("MK_trim.pl $mk_tmp_dir/$transcript.MKout.tmp1.txt > $mk_tmp_dir/$transcript.MKout.tmp2.txt");
+                    system ("sed -i 's/$transcript.fa/$transcript/g' $mk_tmp_dir/$transcript.MKout.tmp2.txt");    
                 
                 # run MK.pl with "unpol" option 
                 } elsif ($pol eq "unpol") {
-                    system ("MK.pl -outfile MK.tmp/$transcript.MKout.tmp1.txt -pol unpol -outgroup $outgroup -ingroup $ingroup -dir ./MK.tmp/");
-                    system ("MK_trim.pl MK.tmp/$transcript.MKout.tmp1.txt > MK.tmp/$transcript.MKout.tmp2.txt");
+                    system ("MK.pl -outfile $mk_tmp_dir/$transcript.MKout.tmp1.txt -pol unpol -outgroup $outgroup -ingroup $ingroup -dir ./$mk_tmp_dir/");
+                    system ("MK_trim.pl $mk_tmp_dir/$transcript.MKout.tmp1.txt > $mk_tmp_dir/$transcript.MKout.tmp2.txt");
+                    system ("sed -i 's/$transcript.fa/$transcript/g' $mk_tmp_dir/$transcript.MKout.tmp2.txt"); 
                 }
                 # Clean-up seqs from MK tmp directory for the next sequence
-                # system ("rm MK.tmp/$transcript.fa ");
-            }   
-            
-            
+                system ("rm $mk_tmp_dir/$transcript.fa ");
+            }
+
+
             # popgen stats
             if ($popgen_flag) {
-                    system ("tajimasD_calculator.pl $transcript.aln_dna.afa > PopGen.tmp/$transcript.all.PopGenOut.txt");
-                    system ("sed -i 's/^/$transcript\t/g' PopGen.tmp/$transcript.all.PopGenOut.txt");
+                    system ("tajimasD_calculator.pl $transcript.aln_dna.afa > $popgen_tmp_dir/$transcript.all.PopGenOut.txt");
+                    system ("sed -i 's/^/$transcript\t/g' $popgen_tmp_dir/$transcript.all.PopGenOut.txt");
                 if ($split_sites_flag) {
                     system ("splitSynNonsyn.py $transcript.aln_dna.afa");
-                    system ("tajimasD_calculator.pl $transcript.nonSyn.fasta > PopGen.tmp/$transcript.nonSyn.PopGenOut.txt");
-                    system ("tajimasD_calculator.pl $transcript.Syn.fasta > PopGen.tmp/$transcript.Syn.PopGenOut.txt");
-                    system ("sed -i 's/^/$transcript\t/g' PopGen.tmp/$transcript.nonSyn.PopGenOut.txt");
-                    system ("sed -i 's/^/$transcript\t/g' PopGen.tmp/$transcript.Syn.PopGenOut.txt");
+                    system ("tajimasD_calculator.pl $transcript.nonSyn.fasta > $popgen_tmp_dir/$transcript.nonSyn.PopGenOut.txt");
+                    system ("tajimasD_calculator.pl $transcript.Syn.fasta > $popgen_tmp_dir/$transcript.Syn.PopGenOut.txt");
+                    system ("sed -i 's/^/$transcript\t/g' $popgen_tmp_dir/$transcript.nonSyn.PopGenOut.txt");
+                    system ("sed -i 's/^/$transcript\t/g' $popgen_tmp_dir/$transcript.Syn.PopGenOut.txt");
                 }
             }
 
@@ -419,21 +427,21 @@ main: {
         
         # Format final MK output files
         if ($mk_test_flag) {
-            system ("echo 'TRANSCRIPT\tNS_POLY\tS_POLY\tNS_FIX\tS_FIX\tcodons\tfinal_NI\talpha\tfinal_FET' | cat - MK.tmp/*.MKout.tmp2.txt > $output_dir/MKout.txt");
-            system ("rm -r MK.tmp");
+            system ("echo 'TRANSCRIPT\tNS_POLY\tS_POLY\tNS_FIX\tS_FIX\tcodons\tfinal_NI\talpha\tfinal_FET' | cat - $mk_tmp_dir/*.MKout.tmp2.txt > $output_dir/MKout.txt");
+            system ("rm -r $mk_tmp_dir");
         }
 
         # Format final PopGen output files
         if ($popgen_flag) {
-            system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - PopGen.tmp/*.all.PopGenOut.txt > $output_dir/PopGen.all.out.txt");
+            system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - $popgen_tmp_dir/*.all.PopGenOut.txt > $output_dir/PopGen.all.out.txt");
 
             if ($split_sites_flag){
-                system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - PopGen.tmp/*.nonSyn.PopGenOut.txt > $output_dir/PopGen.nonSyn.out.txt");
-                system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - PopGen.tmp/*.Syn.PopGenOut.txt > $output_dir/PopGen.Syn.out.txt");
-                } 
-            
-            system ("rm -r PopGen.tmp");
-            
+                system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - $popgen_tmp_dir/*.nonSyn.PopGenOut.txt > $output_dir/PopGen.nonSyn.out.txt");
+                system ("echo 'TRANSCRIPT\tpi\ttheta\tTajimas_D\tFu_and_Li_F*\tFu_and_Li_D*\tsegSites' | cat - $popgen_tmp_dir/*.Syn.PopGenOut.txt > $output_dir/PopGen.Syn.out.txt");
+                }
+
+            system ("rm -r $popgen_tmp_dir");
+
         }
         
             
