@@ -1,0 +1,13 @@
+name: asympMKvcf
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bcftools
+  - numpy
+  - openjdk
+  - pandas
+  - r-mass
+  - r-nls2
+  - snpeff
+  - snpsift
