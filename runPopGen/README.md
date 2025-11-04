@@ -50,7 +50,17 @@ The script normalizes headers (e.g., replaces spaces; retains `species=` and `li
 ## Usage
 
 ```bash
-perl mk_popgen_pipeline.pl   --CDS_file CDS.fasta   (--gene_list genes.txt | --gene_id FBtr0000001)   --output Results/MKPopGen   [--show_samples]   [--include_samples | --exclude_samples --samples_file samples.txt]   [--include_outgroups --orthology_file orthology.tsv]   [--save_alignments]   [--view_DNA_alignment] [--view_Protein_alignment]   [--MK_test --pol pol --outgroup1 SP1 --outgroup2 SP2 --ingroup ING]   [--MK_test --pol unpol --outgroup OUT --ingroup ING]   [--PopGen [--split_codon_sites]]
+perl mk_popgen_pipeline.pl \
+  --CDS_file CDS.fasta (--gene_list genes.txt | --gene_id FBtr0000001) \
+  --output Results/MKPopGen \
+  [--show_samples] \
+  [--include_samples | --exclude_samples --samples_file samples.txt] \
+  [--include_outgroups --orthology_file orthology.tsv] \
+  [--save_alignments] \
+  [--view_DNA_alignment] [--view_Protein_alignment] \
+  [--MK_test --pol pol --outgroup1 SP1 --outgroup2 SP2 --ingroup ING] \
+  [--MK_test --pol unpol --outgroup OUT --ingroup ING] \
+  [--PopGen [--split_codon_sites]]
 ```
 
 ### Required
