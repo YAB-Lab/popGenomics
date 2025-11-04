@@ -2,7 +2,6 @@
 
 SAPA (**S**equence **A**lignment and **P**AML **A**nalysis) aligns coding sequences, translates them to protein, computes pairwise **Ka/Ks**, and optionally runs **PAML codeml** and **HyPhy** selection tests. It supports restricting samples, adding outgroups via an orthology map, and exporting/viewing alignments.
 
-> **Author:** you + ChatGPT  
 > **Language:** Perl  
 > **Version:** 2.2
 
