@@ -8,7 +8,6 @@ Pipeline:
   3) vcf2phylip.py       -> PHYLIP alignment
   4) phyml               -> tree
 
-Author: you + ChatGPT
 """
 
 import argparse
