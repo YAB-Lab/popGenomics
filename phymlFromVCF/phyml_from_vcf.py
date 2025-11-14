@@ -282,7 +282,7 @@ def main():
 
     # Optional: build BED from GTF/GFF
     bed_from_features = None
-    if args.anno or args.feature_type or args.feature_attr or args.feature_id or args.feature_id_file:
+    if any([args.anno, args.feature_type, args.feature_id, args.feature_id_file]):
         # require anno, feature_type, and some IDs
         if not args.anno or not args.feature_type:
             sys.exit("ERROR: Feature selection requires --anno and --feature-type plus --feature-id/--feature-id-file.")
